@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>微信群 AI</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,"Microsoft YaHei",sans-serif;background:#1a1a2e;color:#eee;height:100vh;display:flex;justify-content:center;align-items:center}
+#app{width:100%;max-width:850px;height:100vh;display:flex;flex-direction:column;background:#16213e}
+#header{padding:14px 20px;background:#0f3460;font-size:18px;font-weight:bold;text-align:center;border-bottom:2px solid #e94560}
+#messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:88%;padding:10px 14px;border-radius:14px;line-height:1.7;font-size:14px;word-break:break-word}
+.msg.user{align-self:flex-end;background:#e94560;color:#fff}
+.msg.bot{align-self:flex-start;background:#1a1a3e;border:1px solid #333}
+.msg.bot h2{font-size:15px;margin:6px 0 4px;color:#ff6b81}
+.msg.bot table{width:100%;border-collapse:collapse;margin:8px 0;font-size:13px}
+.msg.bot td,.msg.bot th{border:1px solid #444;padding:6px 8px;text-align:left}
+.msg.bot th{background:#0f3460}
+.msg.bot code{background:#333;padding:1px 4px;border-radius:3px;font-size:13px}
+.msg .time{font-size:10px;opacity:.4;margin-top:4px}
+.loading{align-self:flex-start;color:#888;font-style:italic;padding:8px 16px}
+#input-area{padding:10px 14px;background:#0f3460;display:flex;gap:8px}
+#input-area input{flex:1;padding:10px 14px;border-radius:20px;border:1px solid #444;background:#1a1a2e;color:#eee;font-size:14px;outline:none}
+#input-area input:focus{border-color:#e94560}
+#input-area button{padding:10px 18px;border-radius:20px;border:none;background:#e94560;color:#fff;font-size:14px;cursor:pointer;font-weight:bold}
+#input-area button:hover{background:#ff6b81}
+#input-area button:disabled{background:#555;cursor:not-allowed}
+.suggestions{display:flex;gap:6px;flex-wrap:wrap;padding:8px 14px;overflow-x:auto}
+.suggestions span{padding:5px 10px;border-radius:14px;background:#1a1a3e;border:1px solid #444;font-size:12px;cursor:pointer;white-space:nowrap}
+.suggestions span:hover{border-color:#e94560;background:#2a2a5e}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#16213e}::-webkit-scrollbar-thumb{background:#444;border-radius:3px}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="header">微信群 AI 助手</div>
+<div id="messages">
+<div class="msg bot">
+<b>直接输入你想问的，比如：</b><br><br>
+
+<b>分析某人的聊天</b><br>
+&bull; 分析单个微信好友 — 全面分析关系、话题、时间线<br>
+&bull; 总结我和XX的聊天要点 — 提炼核心结论、共识<br>
+&bull; XX的情绪和态度 — 判断对方语气和真实意图<br>
+&bull; 整理XX的聊天 — 按主题归类，输出表格清单<br>
+&bull; XX有什么待办和承诺 — 提取要做的事和约定<br>
+&bull; XX聊了什么时间地点 — 提取地址、金额、电话<br><br>
+
+<b>分析微信群</b><br>
+&bull; 最近有什么重要消息 — 智能摘要，按话题分组<br>
+&bull; 谁@我了 — 只看@你的消息，标出优先回复的<br>
+&bull; XX群总结 — 今日话题、通知、待跟进事项<br>
+&bull; XX群通知和任务 — 提取公告、任务、会议安排<br>
+&bull; XX群谁最活跃 — 发言排行榜+话题分析<br>
+&bull; 只看XX在群里发过什么 — 过滤特定人发言<br>
+&bull; XX群发了什么文件 — 整理群文件和链接<br><br>
+
+<b>搜索和工具</b><br>
+&bull; 搜索合同 — 全文关键词精准搜索<br>
+&bull; 帮我找Word文档 — 扫描所有文件(Word/Excel/PDF/PPT)<br>
+&bull; 提取待办事项 — 从最近聊天挖出所有待办<br>
+&bull; 我的好友统计 — 通讯录人数一览<br>
+&bull; <b>搜索合同</b> — 全文关键词搜索<br>
+&bull; <b>找出所有约定的时间地点</b> — 关键数据提取
+</div></div>
+<div class="suggestions">
+<span onclick="send('分析某个人')">分析某个人</span>
+<span onclick="send('最近有什么重要消息')">群聊摘要</span>
+<span onclick="send('谁@我了')">@我消息</span>
+<span onclick="send('提取待办事项')">待办提取</span>
+<span onclick="send('搜索关键词')">搜索关键词</span>
+</div>
+<div id="input-area">
+<input id="input" placeholder="输入你想问的..." onkeydown="if(event.key==='Enter')send()">
+<button id="btn" onclick="send()">发送</button>
+</div></div>
+<script>
+const msgs=document.getElementById('messages'),input=document.getElementById('input'),btn=document.getElementById('btn');
+function add(text,cls){
+ const d=document.createElement('div');d.className='msg '+cls;
+ d.innerHTML=text.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<b>$1</b>');
+ const t=document.createElement('div');t.className='time';t.textContent=new Date().toLocaleTimeString();d.appendChild(t);
+ msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
+}
+function showLoad(){
+ const d=document.createElement('div');d.className='loading';d.id='ld';d.textContent='思考中...';msgs.appendChild(d);
+}
+function hideLoad(){const e=document.getElementById('ld');if(e)e.remove();}
+async function send(text){
+ const msg=text||input.value.trim();if(!msg)return;if(!text)input.value='';
+ add(msg,'user');btn.disabled=true;showLoad();
+ try{
+  const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})});
+  const d=await r.json();hideLoad();add(d.reply||'出错','bot');
+ }catch(e){hideLoad();add('连接失败，服务器是否运行？','bot')}
+ btn.disabled=false;input.focus();
+}
+input.focus();
+</script>
+</body>
+</html>

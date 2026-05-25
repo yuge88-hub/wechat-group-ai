@@ -6,10 +6,12 @@ a = Analysis(
     binaries=[],
     datas=[
         ('weixin-decrypte-script', 'weixin-decrypte-script'),
+        ('chat_app.py', '.'),
+        ('agent/chat.html', 'agent'),
     ],
     hiddenimports=[
         'db_service', 'decrypt_engine', 'models',
-        'openai', 'anthropic', 'yaml',
+        'openai', 'yaml',
         'Crypto', 'Crypto.Cipher', 'Crypto.Cipher.AES', 'Crypto.Cipher._mode_cbc',
         'Crypto.Hash', 'Crypto.Hash.HMAC', 'Crypto.Hash.SHA512',
         'Crypto.Protocol', 'Crypto.Protocol.KDF',
@@ -17,7 +19,9 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=['tkinter', 'matplotlib', 'scipy'],
+    excludes=['tkinter', 'matplotlib', 'scipy', 'numpy', 'pandas', 'sqlalchemy',
+               'openpyxl', 'lxml', 'PIL', 'IPython', 'jedi', 'parso',
+               'bs4', 'requests', 'urllib3', 'tqdm', 'fsspec'],
     noarchive=False,
 )
 

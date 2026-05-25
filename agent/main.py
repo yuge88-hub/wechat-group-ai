@@ -48,7 +48,15 @@ def main():
         help='配置文件路径 (默认: agent/config.yaml)',
     )
     parser.add_argument(
-        '--mode', choices=['once', 'watch'], default='once',
+        '--chat', action='store_true',
+        help='启动聊天界面 (浏览器)',
+    )
+    parser.add_argument(
+        '--port', type=int, default=5080,
+        help='聊天界面端口 (默认: 5080)',
+    )
+    parser.add_argument(
+        '--mode', choices=['once', 'watch', 'chat'], default='once',
         help='运行模式: once=单次扫描, watch=持续监控',
     )
     parser.add_argument(
@@ -70,8 +78,14 @@ def main():
 
     args = parser.parse_args()
 
+    # Handle --chat mode (launches web UI)
+    if args.chat:
+        mode = 'chat'
+
     # Resolve mode
     mode = args.mode
+    if args.chat:
+        mode = 'chat'
     if args.once:
         mode = 'once'
     elif args.watch:
@@ -134,7 +148,10 @@ def main():
     agent.setup()
 
     try:
-        if mode == 'watch':
+        if mode == 'chat':
+            from agent.chat_server import start_server
+            start_server(port=args.port)
+        elif mode == 'watch':
             agent.watch()
         else:
             result = agent.run_once(
