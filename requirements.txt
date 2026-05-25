@@ -1,0 +1,16 @@
+# 微信群 AI Agent 依赖
+
+# LLM 客户端（二选一）
+openai>=1.0.0        # OpenAI 兼容 API（DeepSeek、Hermes 等）
+anthropic>=0.30.0    # Anthropic 原生 API（可选，默认用 openai 即可）
+
+# 配置
+pyyaml>=6.0
+
+# 微信数据解密（来自 weixin-decrypte-script）
+pymem>=1.10.0
+psutil>=5.0.0
+pycryptodome>=3.15.0
+zstandard>=0.20.0
+flask>=3.0.0
+flask-cors>=4.0.0

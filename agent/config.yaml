@@ -1,0 +1,51 @@
+# ============================================================
+# 微信群 AI Agent 配置文件
+# ============================================================
+
+# --- LLM 配置 ---
+llm:
+  provider: "openai"                          # anthropic / openai
+  api_key: "${DEEPSEEK_API_KEY}"              # 环境变量，或直接填写
+  base_url: "https://api.deepseek.com/v1"     # DeepSeek / OpenAI 兼容 API 地址
+  model_filter: "deepseek-chat"               # 消息分类模型
+  model_digest: "deepseek-chat"               # 摘要生成模型
+  max_tokens: 4096
+  temperature: 0.3
+
+# --- 数据源 (留空自动检测) ---
+data:
+  db_storage_path: ""
+  key_file: ""
+
+# --- 群组监控 ---
+groups:
+  mode: "auto"                    # auto=自动选活跃群, manual=手动指定
+  watchlist: []                   # manual 模式下的群名列表
+  exclude: []                     # 排除的群名
+  min_members: 5
+  max_groups: 50
+
+# --- 消息过滤 ---
+filter:
+  min_text_length: 5
+  skip_types: [3, 34, 43, 47, 50, 10000]
+  skip_sub_types: [8, 62, 2000, 2001]
+  skip_patterns:
+    - '^\[.*\]$'
+    - '^[嗯哦啊好]+$'
+    - '^(好的|收到|谢谢|ok|OK|1|顶|赞|哈哈)$'
+  aggregation_window_seconds: 120
+
+# --- 调度 ---
+schedule:
+  poll_interval_minutes: 30
+  lookback_hours: 24
+  digest_hour: 9
+  digest_interval: "once"
+
+# --- 输出 ---
+output:
+  digest_dir: "digests"            # 摘要输出目录
+  format: "markdown"
+  console_output: true
+  windows_notification: false
